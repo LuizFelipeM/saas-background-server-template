@@ -1,0 +1,25 @@
+name: saas-background-server
+
+networks:
+  saas-background-server-network:
+    driver: bridge
+    attachable: true
+
+services:  
+  st-background-server:
+    container_name: st-background-server
+    restart: unless-stopped
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+    env_file:
+      - ./.env
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    ports:
+      - 3001:3001
+    depends_on:
+      - redis
+    networks:
+      - saas-background-server-network

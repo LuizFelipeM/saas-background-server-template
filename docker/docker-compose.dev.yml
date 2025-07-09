@@ -1,0 +1,62 @@
+name: saas-background-server
+
+volumes:
+  # region Cloud services
+  pgdata:
+  # endregion
+
+networks:
+  saas-background-server-network:
+    driver: bridge
+    attachable: true
+
+services:  
+  st-background-server:
+    depends_on:
+      - st-bg-redis
+      - st-bg-postgres
+    container_name: st-background-server
+    restart: unless-stopped
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile.dev
+    env_file:
+      - ../.env
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+    ports:
+      - 3001:3001
+    volumes:
+      - ../src:/app/src
+    command:
+      - pnpm
+      - dev
+    networks:
+      - saas-background-server-network
+
+  # region Cloud services
+  st-bg-redis:
+    container_name: st-bg-redis
+    image: redis:alpine
+    restart: unless-stopped
+    ports:
+      - 6379:6379
+    networks:
+      - saas-background-server-network
+
+  st-bg-postgres:
+    container_name: st-bg-postgres
+    image: postgres:17
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_DB: saas-background-server
+      POSTGRES_USER: saas-bg-user
+      POSTGRES_PASSWORD: saas-bg-password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - saas-background-server-network  
+  # endregion
+

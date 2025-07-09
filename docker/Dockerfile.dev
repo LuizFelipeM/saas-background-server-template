@@ -1,0 +1,18 @@
+# Build stage
+FROM node:23-alpine AS builder
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@10.11.0 --activate
+
+WORKDIR /app
+
+# Copy root workspace files
+COPY package*.json pnpm*.yaml tsconfig.json ./
+COPY . .
+
+# Install dependencies
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+
+EXPOSE 3000
+
+CMD ["pnpm", "dev"] 

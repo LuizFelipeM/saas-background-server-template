@@ -1,0 +1,157 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+    provider      = "prisma-client-js"
+    binaryTargets = ["debian-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
+    output        = "../src/generated/prisma"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+// Enums for role and subscription status
+enum UserRole {
+    OWNER
+    ADMIN
+    EDITOR
+    VIEWER
+}
+
+enum SubscriptionStatus {
+    TRIALING
+    ACTIVE
+    CANCELED
+    PAST_DUE
+    UNPAID
+}
+
+enum FeatureType {
+    DEFAULT
+    USAGE
+    METERED
+}
+
+// Main tables
+model Organization {
+    id        String   @id @default(uuid())
+    clerkId   String   @unique
+    name      String
+    slug      String   @unique
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relations
+    users         OrganizationUser[]
+    subscriptions Subscription[]
+
+    @@map("organizations")
+}
+
+model User {
+    id        String   @id @default(uuid())
+    clerkId   String   @unique
+    stripeId  String?  @unique
+    email     String   @unique
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relations
+    organizations OrganizationUser[]
+
+    @@map("users")
+}
+
+model OrganizationUser {
+    id        String   @id @default(uuid())
+    role      UserRole
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relations
+    organizationId String
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    userId         String
+    user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([organizationId, userId])
+    @@map("organization_users")
+}
+
+model Plan {
+    id              String   @id @default(uuid())
+    name            String
+    description     String?
+    stripeProductId String   @unique
+    metadata        Json?
+    features        Json
+    prices          Json?
+    isActive        Boolean  @default(true)
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+
+    // Relations
+    subscriptions Subscription[] @ignore
+
+    @@map("plans")
+}
+
+model Addon {
+    id              String   @id @default(uuid())
+    name            String
+    description     String?
+    stripeProductId String   @unique
+    metadata        Json?
+    key             String
+    feature         Json
+    prices          Json?
+    isActive        Boolean  @default(true)
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+
+    // Relations
+    subscriptions SubscriptionAddon[] @ignore
+
+    @@map("addons")
+}
+
+model Subscription {
+    id                   String             @id @default(uuid())
+    status               SubscriptionStatus
+    stripeSubscriptionId String             @unique
+    features             Json
+    createdAt            DateTime           @default(now())
+    updatedAt            DateTime           @updatedAt
+
+    // Relations
+    organizationId String
+    organization   Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    planId         String
+    plan           Plan                @relation(fields: [planId], references: [id], onDelete: Restrict)
+    addons         SubscriptionAddon[]
+
+    @@map("subscriptions")
+}
+
+// New subscription addon model
+model SubscriptionAddon {
+    id        String   @id @default(uuid())
+    key       String
+    feature   Json
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relations
+    subscriptionId String
+    subscription   Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+    addonId        String
+    addon          Addon        @relation(fields: [addonId], references: [id], onDelete: Restrict)
+
+    @@unique([subscriptionId, addonId])
+    @@map("subscription_addons")
+}
