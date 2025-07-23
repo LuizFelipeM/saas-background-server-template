@@ -3,7 +3,7 @@ import { FeatureService } from "@/services/feature/feature.service";
 import { PlanService } from "@/services/plan.service";
 import { SubscriptionService } from "@/services/subscription.service";
 import { DatabaseManager } from "@saas-packages/database-manager";
-import { QueueManager } from "@saas-packages/queue-manager";
+import { QueueManager } from '@saas-packages/queue-manager'
 import { Redis } from "ioredis";
 import Stripe from "stripe";
 

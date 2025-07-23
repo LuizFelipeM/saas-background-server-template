@@ -12,6 +12,16 @@ export const registerWorkers = () => {
   sharedQueues.forEach(async (queue) => {
     try {
       const module = await import(`./workers/${queue}`);
+      const queueInstance = queueManager.createQueue(queue, {
+        defaultJobOptions: {
+          attempts: 3,
+          backoff: {
+            type: "exponential",
+            delay: 1000,
+          },
+        },
+      });
+      console.log("Created queue", queueInstance.name);
       queueManager.createWorker(queue, new module.default());
     } catch (error) {
       console.error(`Error importing worker for Shared Queue ${queue}:`, error);

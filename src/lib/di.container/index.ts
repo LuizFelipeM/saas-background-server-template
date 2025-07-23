@@ -11,6 +11,9 @@ import Redis from "ioredis";
 
 export class DIContainer {
   private static _container = container;
+  private static _singletonInstances: {
+    [key in keyof ServiceTypes]?: ServiceTypes[key];
+  } = {};
 
   public static initialize() {
     // Bind Prisma instance
@@ -36,13 +39,16 @@ export class DIContainer {
     this._container.register(DITypes.QueueManager, {
       useFactory: (context) => {
         const redis = context.resolve<Redis>(DITypes.Redis);
-        return new QueueManager({
-          connection: redis,
-          defaultJobOptions: {
-            removeOnComplete: true,
-            removeOnFail: true,
-          },
-        });
+        if (!this._singletonInstances[DITypes.QueueManager]) {
+          this._singletonInstances[DITypes.QueueManager] = new QueueManager({
+            connection: redis,
+            defaultJobOptions: {
+              removeOnComplete: true,
+              removeOnFail: true,
+            },
+          });
+        }
+        return this._singletonInstances[DITypes.QueueManager];
       },
     });
 

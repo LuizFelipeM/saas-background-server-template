@@ -1,8 +1,11 @@
 import "reflect-metadata";
+
 import express from "express";
 import basicAuth from "express-basic-auth";
 import { registerWorkers } from "processors";
-import { serverAdapter } from "./configs/bull";
+import { initializeBullBoard } from "./configs/bull";
+import { DITypes } from "./lib/di.container/types";
+import { DIContainer } from "./lib/di.container";
 
 if (
   process.env.NODE_ENV === "production" &&
@@ -17,7 +20,10 @@ if (
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.use(express.json());
+
 const bullBoardPath = "/admin/bull";
+const serverAdapter = initializeBullBoard();
 serverAdapter.setBasePath(bullBoardPath);
 
 app.use(
@@ -32,6 +38,21 @@ app.use(
   }),
   serverAdapter.getRouter()
 );
+
+app.post("/create-queue", (req, res) => {
+  const { queueName } = req.body;
+  const queueManager = DIContainer.getInstance(DITypes.QueueManager);
+  queueManager.createQueue(queueName, {
+    defaultJobOptions: {
+      attempts: 3,
+      backoff: {
+        type: "exponential",
+        delay: 1000,
+      },
+    },
+  });
+  res.json({ status: "ok" });
+});
 
 // Basic health check endpoint
 app.get("/health", (req, res) => {
