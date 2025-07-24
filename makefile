@@ -4,6 +4,9 @@ up:
 up-build:
 	docker compose -f docker/docker-compose.dev.yml up -d --build
 
+up-recreate:
+	docker compose -f docker/docker-compose.dev.yml up -d --build --force-recreate
+
 down:
 	docker compose -f docker/docker-compose.dev.yml down
 

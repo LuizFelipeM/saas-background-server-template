@@ -42,9 +42,13 @@ export class DIContainer {
         if (!this._singletonInstances[DITypes.QueueManager]) {
           this._singletonInstances[DITypes.QueueManager] = new QueueManager({
             connection: redis,
+            prefix: "bull:",
             defaultJobOptions: {
-              removeOnComplete: true,
-              removeOnFail: true,
+              attempts: 3,
+              backoff: {
+                type: "exponential",
+                delay: 1000,
+              },
             },
           });
         }

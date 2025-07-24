@@ -10,20 +10,26 @@ export function initializeBullBoard(): ExpressAdapter {
   const queueManager = DIContainer.getInstance(DITypes.QueueManager);
 
   const { addQueue, removeQueue } = createBullBoard({
+    serverAdapter,
     queues: queueManager
       .getAllQueues()
-      .map((queue) => new BullMQAdapter(queue)),
-    serverAdapter,
+      .map((queue) =>
+        new BullMQAdapter(queue, {
+          prefix: "bull:",
+        })
+      ),
   });
 
-  queueManager.subscribe("queueCreated", (queue) => {
-    console.log("queueCreated", queue?.name);
-    addQueue(new BullMQAdapter(queue));
-  });
-
-  queueManager.subscribe("queueRemoved", (queue) => {
-    removeQueue(new BullMQAdapter(queue));
-  });
+  queueManager.subscribe("queueCreated", (queue) =>
+    addQueue(new BullMQAdapter(queue, {
+      prefix: "bull:",
+    }))
+  );
+  queueManager.subscribe("queueRemoved", (queue) =>
+    removeQueue(new BullMQAdapter(queue, {
+      prefix: "bull:",
+    }))
+  );
 
   return serverAdapter;
 }

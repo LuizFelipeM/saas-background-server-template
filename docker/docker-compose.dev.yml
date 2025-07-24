@@ -10,6 +10,10 @@ networks:
     driver: bridge
     attachable: true
 
+  shared-network:
+    external: true
+    name: shared-network
+
 services:  
   st-background-server:
     depends_on:
@@ -44,6 +48,7 @@ services:
       - 6379:6379
     networks:
       - saas-background-server-network
+      - shared-network
 
   st-bg-postgres:
     container_name: st-bg-postgres

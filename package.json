@@ -13,7 +13,7 @@
     "@bull-board/express": "^6.11.0",
     "@prisma/client": "^6.11.1",
     "@saas-packages/database-manager": "^1.1.0",
-    "@saas-packages/queue-manager": "^1.4.0",
+    "@saas-packages/queue-manager": "^1.4.1",
     "bullmq": "^5.56.2",
     "express": "^5.1.0",
     "express-basic-auth": "^1.2.1",
