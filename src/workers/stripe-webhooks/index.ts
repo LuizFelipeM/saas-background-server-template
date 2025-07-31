@@ -59,7 +59,6 @@ export default class StripeWebhookJob implements JobProcessor<Stripe.Event> {
 
       case "invoice.paid": {
         if (currentState !== "checkout_done") {
-          // Retry later
           job.log("invoice.paid arrived too early. Rescheduling...");
           return {
             success: true,
@@ -105,7 +104,7 @@ export default class StripeWebhookJob implements JobProcessor<Stripe.Event> {
       }
 
       default: {
-        job.log(`Processing ${eventType}`);
+        job.log(`Event ${eventType} not supported`);
         return {
           success: true,
         };

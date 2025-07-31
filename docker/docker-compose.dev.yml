@@ -59,6 +59,8 @@ services:
       POSTGRES_DB: saas-background-server
       POSTGRES_USER: saas-bg-user
       POSTGRES_PASSWORD: saas-bg-password
+    ports:
+      - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:

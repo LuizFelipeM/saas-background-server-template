@@ -15,6 +15,9 @@ RUN pnpm install --frozen-lockfile
 # Copy source code
 COPY . .
 
+# Run migrations
+RUN pnpm prisma migrate deploy
+
 # Build the application
 RUN pnpm build
 

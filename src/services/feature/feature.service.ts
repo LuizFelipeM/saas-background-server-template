@@ -1,3 +1,4 @@
+import { Addon, Plan } from "@/lib/generated/prisma";
 import { hasDuplicates } from "@/lib/utils";
 import { Feature } from "@/types/feature";
 import { injectable } from "tsyringe";

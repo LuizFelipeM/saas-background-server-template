@@ -1,4 +1,4 @@
-import { FeatureType } from "@saas-packages/database-manager";
+import { FeatureType } from "@/lib/generated/prisma";
 
 export interface Feature {
   type: FeatureType;

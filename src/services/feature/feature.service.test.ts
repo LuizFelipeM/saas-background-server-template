@@ -1,4 +1,4 @@
-import { Addon, FeatureType, Plan } from "@saas-packages/database-manager";
+import { Addon, FeatureType, Plan } from "@/lib/generated/prisma";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FeatureService } from "./feature.service";
 

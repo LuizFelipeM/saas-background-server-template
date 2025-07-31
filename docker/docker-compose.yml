@@ -17,6 +17,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3001
+      - DATABASE_URL=postgresql://saas-bg-user:saas-bg-password@st-bg-postgres:5432/saas-background-server
     ports:
       - 3001:3001
     depends_on:

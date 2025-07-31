@@ -16,10 +16,10 @@ importers:
         version: 6.11.0
       '@prisma/client':
         specifier: ^6.11.1
-        version: 6.11.1(typescript@5.8.3)
+        version: 6.11.1(prisma@6.12.0(typescript@5.8.3))(typescript@5.8.3)
       '@saas-packages/database-manager':
-        specifier: ^1.1.0
-        version: 1.1.0(@prisma/client@6.11.1(typescript@5.8.3))
+        specifier: ^1.2.0
+        version: 1.2.0(@prisma/client@6.11.1(prisma@6.12.0(typescript@5.8.3))(typescript@5.8.3))
       '@saas-packages/queue-manager':
         specifier: ^1.4.1
         version: 1.4.1
@@ -35,6 +35,9 @@ importers:
       ioredis:
         specifier: ^5.6.1
         version: 5.6.1
+      prisma:
+        specifier: ^6.12.0
+        version: 6.12.0(typescript@5.8.3)
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -47,6 +50,9 @@ importers:
       tsyringe:
         specifier: ^4.10.0
         version: 4.10.0
+      zod:
+        specifier: ^4.0.13
+        version: 4.0.13
     devDependencies:
       '@types/express':
         specifier: ^5.0.3
@@ -56,13 +62,13 @@ importers:
         version: 20.19.6
       eslint:
         specifier: ^9.30.1
-        version: 9.30.1
+        version: 9.30.1(jiti@2.4.2)
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
       vitest:
         specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.6)(tsx@4.20.3)
+        version: 3.2.4(@types/node@20.19.6)(jiti@2.4.2)(tsx@4.20.3)
 
 packages:
 
@@ -343,6 +349,24 @@ packages:
       typescript:
         optional: true
 
+  '@prisma/config@6.12.0':
+    resolution: {integrity: sha512-HovZWzhWEMedHxmjefQBRZa40P81N7/+74khKFz9e1AFjakcIQdXgMWKgt20HaACzY+d1LRBC+L4tiz71t9fkg==}
+
+  '@prisma/debug@6.12.0':
+    resolution: {integrity: sha512-plbz6z72orcqr0eeio7zgUrZj5EudZUpAeWkFTA/DDdXEj28YHDXuiakvR6S7sD6tZi+jiwQEJAPeV6J6m/tEQ==}
+
+  '@prisma/engines-version@6.12.0-15.8047c96bbd92db98a2abc7c9323ce77c02c89dbc':
+    resolution: {integrity: sha512-70vhecxBJlRr06VfahDzk9ow4k1HIaSfVUT3X0/kZoHCMl9zbabut4gEXAyzJZxaCGi5igAA7SyyfBI//mmkbQ==}
+
+  '@prisma/engines@6.12.0':
+    resolution: {integrity: sha512-4BRZZUaAuB4p0XhTauxelvFs7IllhPmNLvmla0bO1nkECs8n/o1pUvAVbQ/VOrZR5DnF4HED0PrGai+rIOVePA==}
+
+  '@prisma/fetch-engine@6.12.0':
+    resolution: {integrity: sha512-EamoiwrK46rpWaEbLX9aqKDPOd8IyLnZAkiYXFNuq0YsU0Z8K09/rH8S7feOWAVJ3xzeSgcEJtBlVDrajM9Sag==}
+
+  '@prisma/get-platform@6.12.0':
+    resolution: {integrity: sha512-nRerTGhTlgyvcBlyWgt8OLNIV7QgJS2XYXMJD1hysorMCuLAjuDDuoxmVt7C2nLxbuxbWPp7OuFRHC23HqD9dA==}
+
   '@rollup/rollup-android-arm-eabi@4.44.2':
     resolution: {integrity: sha512-g0dF8P1e2QYPOj1gu7s/3LVP6kze9A7m6x0BZ9iTdXK8N5c2V7cpBKHV3/9A4Zd8xxavdhK0t4PnqjkqVmUc9Q==}
     cpu: [arm]
@@ -446,8 +470,8 @@ packages:
   '@saas-packages/core@1.0.1':
     resolution: {integrity: sha512-TlhX1M+UlNzpn+Ki89on9Qs3DQFpEYwNi0kETANMhYM5tjCLEOKcWVDHD3ewYOVgT1UyjJETKWP9Qra4wmWrQQ==}
 
-  '@saas-packages/database-manager@1.1.0':
-    resolution: {integrity: sha512-uLxzpfXOybIxlI7hKCmMCO92/1fWBYIb3MRxu4ie1wfPLY4+eWuoWFbjyE/9LG50IHexVTXDniynGHEKkiIXnw==}
+  '@saas-packages/database-manager@1.2.0':
+    resolution: {integrity: sha512-eoen6UHP3eJ5b82BuCXRsAxhoLFqvz6aee4Xw+d+2G1/+4cTvJU43u3YU/za6B4oVoBK4xCZSdicVS6KaPJ0IA==}
     peerDependencies:
       '@prisma/client': ^5.0.0
 
@@ -920,6 +944,10 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  jiti@2.4.2:
+    resolution: {integrity: sha512-rg9zJN+G4n2nfJl5MW3BMygZX56zKPNVEYYqq7adpmMh4Jn2QNEwhvQlFy6jPVdcod7txZtKHWnyZiA3a0zP7A==}
+    hasBin: true
+
   js-tokens@9.0.1:
     resolution: {integrity: sha512-mxa9E9ITFOt0ban3j6L5MpjwegGz6lBQmM1IJkWeBZGcMxto50+eWdjC/52xDbS2vy0k7vIMK0Fe2wfL9OQSpQ==}
 
@@ -1089,6 +1117,16 @@ packages:
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
+
+  prisma@6.12.0:
+    resolution: {integrity: sha512-pmV7NEqQej9WjizN6RSNIwf7Y+jeh9mY1JEX2WjGxJi4YZWexClhde1yz/FuvAM+cTwzchcMytu2m4I6wPkIzg==}
+    engines: {node: '>=18.18'}
+    hasBin: true
+    peerDependencies:
+      typescript: '>=5.1.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   proxy-addr@2.0.7:
     resolution: {integrity: sha512-llQsMLSUDUPT44jdrU/O37qlnifitDP+ZwrmmZcoSKyLKvtZxpyV0n2/bD/N4tBAAZ/gJEdZU7KMraoK1+XYAg==}
@@ -1402,6 +1440,9 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
+  zod@4.0.13:
+    resolution: {integrity: sha512-jv+zRxuZQxTrFHzxZ46ezL2FtnE+M4HIJHJEwLsZ7UjrXHltdG6HrxvqM0twoVCWxJiYf8WqKjAcjztegpkB+Q==}
+
 snapshots:
 
   '@bull-board/api@6.11.0(@bull-board/ui@6.11.0)':
@@ -1500,9 +1541,9 @@ snapshots:
   '@esbuild/win32-x64@0.25.6':
     optional: true
 
-  '@eslint-community/eslint-utils@4.7.0(eslint@9.30.1)':
+  '@eslint-community/eslint-utils@4.7.0(eslint@9.30.1(jiti@2.4.2))':
     dependencies:
-      eslint: 9.30.1
+      eslint: 9.30.1(jiti@2.4.2)
       eslint-visitor-keys: 3.4.3
 
   '@eslint-community/regexpp@4.12.1': {}
@@ -1583,9 +1624,35 @@ snapshots:
   '@msgpackr-extract/msgpackr-extract-win32-x64@3.0.3':
     optional: true
 
-  '@prisma/client@6.11.1(typescript@5.8.3)':
+  '@prisma/client@6.11.1(prisma@6.12.0(typescript@5.8.3))(typescript@5.8.3)':
     optionalDependencies:
+      prisma: 6.12.0(typescript@5.8.3)
       typescript: 5.8.3
+
+  '@prisma/config@6.12.0':
+    dependencies:
+      jiti: 2.4.2
+
+  '@prisma/debug@6.12.0': {}
+
+  '@prisma/engines-version@6.12.0-15.8047c96bbd92db98a2abc7c9323ce77c02c89dbc': {}
+
+  '@prisma/engines@6.12.0':
+    dependencies:
+      '@prisma/debug': 6.12.0
+      '@prisma/engines-version': 6.12.0-15.8047c96bbd92db98a2abc7c9323ce77c02c89dbc
+      '@prisma/fetch-engine': 6.12.0
+      '@prisma/get-platform': 6.12.0
+
+  '@prisma/fetch-engine@6.12.0':
+    dependencies:
+      '@prisma/debug': 6.12.0
+      '@prisma/engines-version': 6.12.0-15.8047c96bbd92db98a2abc7c9323ce77c02c89dbc
+      '@prisma/get-platform': 6.12.0
+
+  '@prisma/get-platform@6.12.0':
+    dependencies:
+      '@prisma/debug': 6.12.0
 
   '@rollup/rollup-android-arm-eabi@4.44.2':
     optional: true
@@ -1652,9 +1719,9 @@ snapshots:
       reflect-metadata: 0.1.14
       tsyringe: 4.10.0
 
-  '@saas-packages/database-manager@1.1.0(@prisma/client@6.11.1(typescript@5.8.3))':
+  '@saas-packages/database-manager@1.2.0(@prisma/client@6.11.1(prisma@6.12.0(typescript@5.8.3))(typescript@5.8.3))':
     dependencies:
-      '@prisma/client': 6.11.1(typescript@5.8.3)
+      '@prisma/client': 6.11.1(prisma@6.12.0(typescript@5.8.3))(typescript@5.8.3)
       '@saas-packages/core': 1.0.1
 
   '@saas-packages/queue-manager@1.4.1':
@@ -1728,13 +1795,13 @@ snapshots:
       chai: 5.2.1
       tinyrainbow: 2.0.0
 
-  '@vitest/mocker@3.2.4(vite@7.0.3(@types/node@20.19.6)(tsx@4.20.3))':
+  '@vitest/mocker@3.2.4(vite@7.0.3(@types/node@20.19.6)(jiti@2.4.2)(tsx@4.20.3))':
     dependencies:
       '@vitest/spy': 3.2.4
       estree-walker: 3.0.3
       magic-string: 0.30.17
     optionalDependencies:
-      vite: 7.0.3(@types/node@20.19.6)(tsx@4.20.3)
+      vite: 7.0.3(@types/node@20.19.6)(jiti@2.4.2)(tsx@4.20.3)
 
   '@vitest/pretty-format@3.2.4':
     dependencies:
@@ -1973,9 +2040,9 @@ snapshots:
 
   eslint-visitor-keys@4.2.1: {}
 
-  eslint@9.30.1:
+  eslint@9.30.1(jiti@2.4.2):
     dependencies:
-      '@eslint-community/eslint-utils': 4.7.0(eslint@9.30.1)
+      '@eslint-community/eslint-utils': 4.7.0(eslint@9.30.1(jiti@2.4.2))
       '@eslint-community/regexpp': 4.12.1
       '@eslint/config-array': 0.21.0
       '@eslint/config-helpers': 0.3.0
@@ -2010,6 +2077,8 @@ snapshots:
       minimatch: 3.1.2
       natural-compare: 1.4.0
       optionator: 0.9.4
+    optionalDependencies:
+      jiti: 2.4.2
     transitivePeerDependencies:
       - supports-color
 
@@ -2219,6 +2288,8 @@ snapshots:
       filelist: 1.0.4
       minimatch: 3.1.2
 
+  jiti@2.4.2: {}
+
   js-tokens@9.0.1: {}
 
   js-yaml@4.1.0:
@@ -2365,6 +2436,13 @@ snapshots:
       source-map-js: 1.2.1
 
   prelude-ls@1.2.1: {}
+
+  prisma@6.12.0(typescript@5.8.3):
+    dependencies:
+      '@prisma/config': 6.12.0
+      '@prisma/engines': 6.12.0
+    optionalDependencies:
+      typescript: 5.8.3
 
   proxy-addr@2.0.7:
     dependencies:
@@ -2595,13 +2673,13 @@ snapshots:
 
   vary@1.1.2: {}
 
-  vite-node@3.2.4(@types/node@20.19.6)(tsx@4.20.3):
+  vite-node@3.2.4(@types/node@20.19.6)(jiti@2.4.2)(tsx@4.20.3):
     dependencies:
       cac: 6.7.14
       debug: 4.4.1
       es-module-lexer: 1.7.0
       pathe: 2.0.3
-      vite: 7.0.3(@types/node@20.19.6)(tsx@4.20.3)
+      vite: 7.0.3(@types/node@20.19.6)(jiti@2.4.2)(tsx@4.20.3)
     transitivePeerDependencies:
       - '@types/node'
       - jiti
@@ -2616,7 +2694,7 @@ snapshots:
       - tsx
       - yaml
 
-  vite@7.0.3(@types/node@20.19.6)(tsx@4.20.3):
+  vite@7.0.3(@types/node@20.19.6)(jiti@2.4.2)(tsx@4.20.3):
     dependencies:
       esbuild: 0.25.6
       fdir: 6.4.6(picomatch@4.0.2)
@@ -2627,13 +2705,14 @@ snapshots:
     optionalDependencies:
       '@types/node': 20.19.6
       fsevents: 2.3.3
+      jiti: 2.4.2
       tsx: 4.20.3
 
-  vitest@3.2.4(@types/node@20.19.6)(tsx@4.20.3):
+  vitest@3.2.4(@types/node@20.19.6)(jiti@2.4.2)(tsx@4.20.3):
     dependencies:
       '@types/chai': 5.2.2
       '@vitest/expect': 3.2.4
-      '@vitest/mocker': 3.2.4(vite@7.0.3(@types/node@20.19.6)(tsx@4.20.3))
+      '@vitest/mocker': 3.2.4(vite@7.0.3(@types/node@20.19.6)(jiti@2.4.2)(tsx@4.20.3))
       '@vitest/pretty-format': 3.2.4
       '@vitest/runner': 3.2.4
       '@vitest/snapshot': 3.2.4
@@ -2651,8 +2730,8 @@ snapshots:
       tinyglobby: 0.2.14
       tinypool: 1.1.1
       tinyrainbow: 2.0.0
-      vite: 7.0.3(@types/node@20.19.6)(tsx@4.20.3)
-      vite-node: 3.2.4(@types/node@20.19.6)(tsx@4.20.3)
+      vite: 7.0.3(@types/node@20.19.6)(jiti@2.4.2)(tsx@4.20.3)
+      vite-node: 3.2.4(@types/node@20.19.6)(jiti@2.4.2)(tsx@4.20.3)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 20.19.6
@@ -2684,3 +2763,5 @@ snapshots:
   wrappy@1.0.2: {}
 
   yocto-queue@0.1.0: {}
+
+  zod@4.0.13: {}

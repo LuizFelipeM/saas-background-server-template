@@ -1,10 +1,11 @@
-import { DITypes } from "@/lib/di.container/types";
-import { DatabaseManager } from "@saas-packages/database-manager";
+import { type DatabaseManagerType, DITypes } from "@/lib/di.container/types";
+import { Prisma } from "@/lib/generated/prisma";
 import { inject, injectable } from "tsyringe";
 import Stripe from "stripe";
 import { AddonService } from "./addon.service";
 import { FeatureService } from "./feature/feature.service";
 import { PlanService } from "./plan.service";
+import { SubscriptionStatus } from "@/lib/generated/prisma";
 
 type StripeSubscription = Stripe.Subscription & {
   current_period_end: number;
@@ -12,9 +13,11 @@ type StripeSubscription = Stripe.Subscription & {
 
 @injectable()
 export class SubscriptionService {
+  private readonly subscriptionDelegate: Prisma.SubscriptionDelegate;
+
   constructor(
     @inject(DITypes.DatabaseManager)
-    private readonly dbManager: DatabaseManager,
+    private readonly dbManager: DatabaseManagerType,
     @inject(DITypes.Stripe)
     private readonly stripe: Stripe,
     @inject(DITypes.PlanService)
@@ -24,7 +27,7 @@ export class SubscriptionService {
     @inject(DITypes.FeatureService)
     private readonly featureService: FeatureService
   ) {
-    this.dbManager.connect();
+    this.subscriptionDelegate = this.dbManager.client.subscription;
   }
 
   async completeSession(session: Stripe.Checkout.Session) {
@@ -67,7 +70,7 @@ export class SubscriptionService {
       throw new Error("Plan not found");
     }
 
-    await this.dbManager.getClient().subscription.create({
+    await this.subscriptionDelegate.create({
       data: {
         organizationId,
         planId,
@@ -91,7 +94,7 @@ export class SubscriptionService {
       throw new Error("Failed to retrieve subscription");
     }
 
-    await this.dbManager.getClient().subscription.update({
+    await this.subscriptionDelegate.update({
       where: { stripeSubscriptionId: subscriptionId },
       data: {
         status: "ACTIVE",
@@ -117,7 +120,7 @@ export class SubscriptionService {
       throw new Error("Plan not found");
     }
 
-    await this.dbManager.getClient().subscription.update({
+    await this.subscriptionDelegate.update({
       where: { stripeSubscriptionId: subscription.id },
       data: {
         planId,
@@ -128,7 +131,7 @@ export class SubscriptionService {
   }
 
   async subscriptionDeleted(subscription: Stripe.Subscription) {
-    await this.dbManager.getClient().subscription.update({
+    await this.subscriptionDelegate.update({
       where: { stripeSubscriptionId: subscription.id },
       data: {
         status: "CANCELED",

@@ -1,12 +1,14 @@
 import { AddonService } from "@/services/addon.service";
 import { FeatureService } from "@/services/feature/feature.service";
+import { OrganizationService } from "@/services/organization.service";
 import { PlanService } from "@/services/plan.service";
 import { SubscriptionService } from "@/services/subscription.service";
+import { UserService } from "@/services/user.service";
 import { DatabaseManager } from "@saas-packages/database-manager";
 import { QueueManager } from "@saas-packages/queue-manager";
 import { container } from "tsyringe";
 import { DITypes, ServiceTypes } from "./types";
-import { PrismaClient } from "@/generated/prisma";
+import { PrismaClient } from "@/lib/generated/prisma";
 import Redis from "ioredis";
 
 export class DIContainer {
@@ -16,17 +18,11 @@ export class DIContainer {
   } = {};
 
   public static initialize() {
-    // Bind Prisma instance
-    this._container.register(DITypes.DatabaseManager, {
-      useValue: new DatabaseManager({
-        prismaClient: new PrismaClient(),
-        url: process.env.DATABASE_URL!,
-        logQueries: true,
-        logErrors: true,
-      }),
-    });
+    this.registerSingletonInstances();
+    this.registerServices();
+  }
 
-    // Bind Redis instance
+  private static registerSingletonInstances() {
     this._container.register(DITypes.Redis, {
       useValue: new Redis({
         host: process.env.REDIS_HOST,
@@ -35,7 +31,12 @@ export class DIContainer {
       }),
     });
 
-    // Bind QueueManager instance
+    this._container.register(DITypes.DatabaseManager, {
+      useValue: new DatabaseManager({
+        prismaClient: new PrismaClient(),
+      }),
+    });
+
     this._container.register(DITypes.QueueManager, {
       useFactory: (context) => {
         const redis = context.resolve<Redis>(DITypes.Redis);
@@ -55,8 +56,9 @@ export class DIContainer {
         return this._singletonInstances[DITypes.QueueManager];
       },
     });
+  }
 
-    // Bind services
+  private static registerServices() {
     this._container.register(DITypes.PlanService, {
       useClass: PlanService,
     });
@@ -68,6 +70,12 @@ export class DIContainer {
     });
     this._container.register(DITypes.SubscriptionService, {
       useClass: SubscriptionService,
+    });
+    this._container.register(DITypes.UserService, {
+      useClass: UserService,
+    });
+    this._container.register(DITypes.OrganizationService, {
+      useClass: OrganizationService,
     });
   }
 

@@ -7,12 +7,13 @@
 generator client {
     provider      = "prisma-client-js"
     binaryTargets = ["debian-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
-    output        = "../src/generated/prisma"
+    output        = "../src/lib/generated/prisma"
 }
 
 datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
+    directUrl = env("MIGRATION_DATABASE_URL")
 }
 
 // Enums for role and subscription status
@@ -41,13 +42,11 @@ enum FeatureType {
 model Organization {
     id        String   @id @default(uuid())
     clerkId   String   @unique
-    name      String
-    slug      String   @unique
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
     // Relations
-    users         OrganizationUser[]
+    memberships   Membership[]
     subscriptions Subscription[]
 
     @@map("organizations")
@@ -62,12 +61,12 @@ model User {
     updatedAt DateTime @updatedAt
 
     // Relations
-    organizations OrganizationUser[]
+    memberships Membership[]
 
     @@map("users")
 }
 
-model OrganizationUser {
+model Membership {
     id        String   @id @default(uuid())
     role      UserRole
     createdAt DateTime @default(now())
@@ -80,7 +79,7 @@ model OrganizationUser {
     user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([organizationId, userId])
-    @@map("organization_users")
+    @@map("memberships")
 }
 
 model Plan {
@@ -96,7 +95,7 @@ model Plan {
     updatedAt       DateTime @updatedAt
 
     // Relations
-    subscriptions Subscription[] @ignore
+    subscriptions Subscription[]
 
     @@map("plans")
 }
@@ -115,7 +114,7 @@ model Addon {
     updatedAt       DateTime @updatedAt
 
     // Relations
-    subscriptions SubscriptionAddon[] @ignore
+    subscriptions SubscriptionAddon[]
 
     @@map("addons")
 }

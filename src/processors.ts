@@ -2,14 +2,14 @@ import { DIContainer } from "@/lib/di.container";
 import { DITypes } from "@/lib/di.container/types";
 import fs from "node:fs";
 import path from "node:path";
-import { ExternalQueues } from "./configs/ExternalQueues";
+import { ExternalQueues } from "./configs/queues";
 
 export const registerWorkers = () => {
   const queueManager = DIContainer.getInstance(DITypes.QueueManager);
 
-  // Register workers for shared queues
-  const sharedQueues = Object.values(ExternalQueues);
-  sharedQueues.forEach(async (queue) => {
+  // Register workers for external queues
+  const externalQueues = Object.values(ExternalQueues);
+  externalQueues.forEach(async (queue) => {
     try {
       const module = await import(`./workers/${queue}`);
       const queueInstance = queueManager.createQueue(queue, {
@@ -24,13 +24,13 @@ export const registerWorkers = () => {
       console.log("Created queue", queueInstance.name);
       queueManager.createWorker(queue, new module.default());
     } catch (error) {
-      console.error(`Error importing worker for Shared Queue ${queue}:`, error);
+      console.error(`Error importing worker for External Queue ${queue}:`, error);
     }
   });
 
   // Register workers from the workers directory
   fs.readdirSync(path.join(__dirname, "workers"))
-    .filter((file) => !sharedQueues.includes(file as ExternalQueues))
+    .filter((file) => !externalQueues.includes(file as ExternalQueues))
     .forEach(async (file) => {
       try {
         const module = await import(`./workers/${file}`);
