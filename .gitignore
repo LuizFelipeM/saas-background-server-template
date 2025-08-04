@@ -143,3 +143,6 @@ prisma/*.db
 prisma/db.sqlite
 prisma/db.sqlite-journal
 generated
+
+# Build output
+build

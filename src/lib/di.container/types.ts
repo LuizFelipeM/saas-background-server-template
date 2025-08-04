@@ -3,6 +3,7 @@ import { FeatureService } from "@/services/feature/feature.service";
 import { PlanService } from "@/services/plan.service";
 import { SubscriptionService } from "@/services/subscription.service";
 import { UserService } from "@/services/user.service";
+import { WebhookService } from "@/services/webhook/webhook.service";
 import { DatabaseManager } from "@saas-packages/database-manager";
 import { QueueManager } from '@saas-packages/queue-manager'
 import { PrismaClient } from "@/lib/generated/prisma";
@@ -23,6 +24,7 @@ export const DITypes = {
   SubscriptionService: "SubscriptionService",
   UserService: "UserService",
   OrganizationService: "OrganizationService",
+  WebhookService: "WebhookService",
 } as const;
 
 export type ServiceTypes = {
@@ -36,4 +38,5 @@ export type ServiceTypes = {
   [DITypes.SubscriptionService]: SubscriptionService;
   [DITypes.UserService]: UserService;
   [DITypes.OrganizationService]: OrganizationService;
+  [DITypes.WebhookService]: WebhookService;
 };

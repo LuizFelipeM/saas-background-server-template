@@ -5,6 +5,7 @@ import Stripe from "stripe";
 import { AddonService } from "./addon.service";
 import { FeatureService } from "./feature/feature.service";
 import { PlanService } from "./plan.service";
+import { WebhookService } from "./webhook/webhook.service";
 import { SubscriptionStatus } from "@/lib/generated/prisma";
 
 type StripeSubscription = Stripe.Subscription & {
@@ -25,7 +26,9 @@ export class SubscriptionService {
     @inject(DITypes.AddonService)
     private readonly addonService: AddonService,
     @inject(DITypes.FeatureService)
-    private readonly featureService: FeatureService
+    private readonly featureService: FeatureService,
+    @inject(DITypes.WebhookService)
+    private readonly webhookService: WebhookService
   ) {
     this.subscriptionDelegate = this.dbManager.client.subscription;
   }
@@ -94,11 +97,21 @@ export class SubscriptionService {
       throw new Error("Failed to retrieve subscription");
     }
 
-    await this.subscriptionDelegate.update({
+    const dbSubscription = await this.subscriptionDelegate.update({
       where: { stripeSubscriptionId: subscriptionId },
       data: {
         status: "ACTIVE",
       },
+    });
+
+    // Send user.activated webhook event
+    await this.webhookService.sendEvent("user.activated", {
+      subscriptionId: dbSubscription.id,
+      stripeSubscriptionId: subscriptionId,
+      organizationId: dbSubscription.organizationId,
+      planId: dbSubscription.planId,
+      status: "ACTIVE",
+      activatedAt: new Date().toISOString(),
     });
   }
 
@@ -131,11 +144,21 @@ export class SubscriptionService {
   }
 
   async subscriptionDeleted(subscription: Stripe.Subscription) {
-    await this.subscriptionDelegate.update({
+    const dbSubscription = await this.subscriptionDelegate.update({
       where: { stripeSubscriptionId: subscription.id },
       data: {
         status: "CANCELED",
       },
+    });
+
+    // Send user.deactivated webhook event
+    await this.webhookService.sendEvent("user.deactivated", {
+      subscriptionId: dbSubscription.id,
+      stripeSubscriptionId: subscription.id,
+      organizationId: dbSubscription.organizationId,
+      planId: dbSubscription.planId,
+      status: "CANCELED",
+      canceledAt: new Date().toISOString(),
     });
   }
 

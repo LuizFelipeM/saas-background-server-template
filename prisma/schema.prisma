@@ -154,3 +154,37 @@ model SubscriptionAddon {
     @@unique([subscriptionId, addonId])
     @@map("subscription_addons")
 }
+
+model WebhookEndpoint {
+    id         String   @id @default(uuid())
+    url        String
+    events     String[] // Array of event types this endpoint listens to
+    isActive   Boolean  @default(true)
+    secret     String?  // Optional secret for webhook signature verification
+    retryCount Int      @default(3)
+    timeout    Int      @default(10000) // Timeout in milliseconds
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+
+    // Relations
+    events_log WebhookEvent[]
+
+    @@map("webhook_endpoints")
+}
+
+model WebhookEvent {
+    id         String   @id @default(uuid())
+    endpointId String
+    event      String   // The event type (e.g., "user.activated", "user.deactivated")
+    payload    String   // JSON string of the webhook payload
+    success    Boolean  // Whether the webhook was sent successfully
+    statusCode Int?     // HTTP status code of the response
+    error      String?  // Error message if the webhook failed
+    attempt    Int      // Which attempt this was (for retries)
+    sentAt     DateTime @default(now())
+
+    // Relations
+    endpoint WebhookEndpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+
+    @@map("webhook_events")
+}

@@ -4,6 +4,7 @@ import { OrganizationService } from "@/services/organization.service";
 import { PlanService } from "@/services/plan.service";
 import { SubscriptionService } from "@/services/subscription.service";
 import { UserService } from "@/services/user.service";
+import { WebhookService } from "@/services/webhook/webhook.service";
 import { DatabaseManager } from "@saas-packages/database-manager";
 import { QueueManager } from "@saas-packages/queue-manager";
 import { container } from "tsyringe";
@@ -76,6 +77,9 @@ export class DIContainer {
     });
     this._container.register(DITypes.OrganizationService, {
       useClass: OrganizationService,
+    });
+    this._container.register(DITypes.WebhookService, {
+      useClass: WebhookService,
     });
   }
 
