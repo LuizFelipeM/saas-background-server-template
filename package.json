@@ -7,9 +7,13 @@
     "dev:local": "tsx watch --env-file=./.env --include 'src/**/*.ts' ./src/server.ts",
     "build": "tsc",
     "start": "node build/server.js",
+    "prisma:db:push": "prisma db push",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "commit": "cz",
+    "commit:all": "git add . && cz",
+    "prepare": "husky"
   },
   "dependencies": {
     "@bull-board/api": "^6.11.0",
@@ -29,11 +33,21 @@
     "zod": "^4.0.13"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
     "@types/express": "^5.0.3",
     "@types/node": "^20.19.6",
+    "commitizen": "^4.3.1",
+    "cz-conventional-changelog": "^3.3.0",
     "eslint": "^9.30.1",
+    "husky": "^9.1.7",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
   }
 }
