@@ -84,7 +84,7 @@ model Membership {
 
 model Plan {
     id              String   @id @default(uuid())
-    name            String
+    name            String   @unique
     description     String?
     stripeProductId String   @unique
     metadata        Json?
@@ -176,7 +176,7 @@ model WebhookEvent {
     id         String   @id @default(uuid())
     endpointId String
     event      String   // The event type (e.g., "user.activated", "user.deactivated")
-    payload    String   // JSON string of the webhook payload
+    payload    Json     // JSON string of the webhook payload
     success    Boolean  // Whether the webhook was sent successfully
     statusCode Int?     // HTTP status code of the response
     error      String?  // Error message if the webhook failed

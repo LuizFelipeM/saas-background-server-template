@@ -11,7 +11,8 @@ export const registerWorkers = () => {
   const externalQueues = Object.values(ExternalQueues);
   externalQueues.forEach(async (queue) => {
     try {
-      const module = await import(`./workers/${queue}`);
+      const Worker = (await import(`./workers/${queue}`)).default;
+
       const queueInstance = queueManager.createQueue(queue, {
         defaultJobOptions: {
           attempts: 3,
@@ -22,7 +23,8 @@ export const registerWorkers = () => {
         },
       });
       console.log("Created queue", queueInstance.name);
-      queueManager.createWorker(queue, new module.default());
+      const worker = queueManager.createWorker(queue, new Worker());
+      console.log("Created worker", worker.name);
     } catch (error) {
       console.error(`Error importing worker for External Queue ${queue}:`, error);
     }
@@ -33,9 +35,9 @@ export const registerWorkers = () => {
     .filter((file) => !externalQueues.includes(file as ExternalQueues))
     .forEach(async (file) => {
       try {
-        const module = await import(`./workers/${file}`);
+        const Worker = (await import(`./workers/${file}`)).default;
 
-        queueManager.createQueue(file, {
+        const queueInstance = queueManager.createQueue(file, {
           defaultJobOptions: {
             attempts: 3,
             backoff: {
@@ -44,7 +46,9 @@ export const registerWorkers = () => {
             },
           },
         });
-        queueManager.createWorker(file, new module.default());
+        console.log("Created queue", queueInstance.name);
+        const worker = queueManager.createWorker(file, new Worker());
+        console.log("Created worker", worker.name);
       } catch (error) {
         console.error(`Error importing worker for queue ${file}:`, error);
       }

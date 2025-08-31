@@ -46,7 +46,7 @@ export class FeatureService {
   generateSubscriptionFeatures(
     plan: Plan,
     addons: Addon[]
-  ): Record<string, Feature> {
+  ): { [key: string]: Feature } {
     if (hasDuplicates(addons.map((addon) => addon.key))) {
       console.error(
         "Only one addon of the same feature is allowed to be added, please remove the duplicate addon"
@@ -66,7 +66,6 @@ export class FeatureService {
       {}
     );
 
-    const features = this.mergeFeatures(planFeatures, addonFeatures);
-    return features;
+    return this.mergeFeatures(planFeatures, addonFeatures);
   }
 }

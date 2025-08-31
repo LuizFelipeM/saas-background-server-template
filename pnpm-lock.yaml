@@ -21,8 +21,8 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0(@prisma/client@6.11.1(prisma@6.12.0(typescript@5.8.3))(typescript@5.8.3))
       '@saas-packages/queue-manager':
-        specifier: ^1.4.1
-        version: 1.4.1
+        specifier: ^1.5.0
+        version: 1.5.0
       bullmq:
         specifier: ^5.56.2
         version: 5.56.2
@@ -567,8 +567,8 @@ packages:
     peerDependencies:
       '@prisma/client': ^5.0.0
 
-  '@saas-packages/queue-manager@1.4.1':
-    resolution: {integrity: sha512-jcpTMLKZ/+fckBq6/sKtSjAhPnXGmL+eA4mkdfp5jHhIBILf0WRtiiwCdNrQ8xStKEWhZq81DTAl5c+ubcTVzQ==}
+  '@saas-packages/queue-manager@1.5.0':
+    resolution: {integrity: sha512-nH3tQnPsU36weSnaQUbDzYOI9na6DZLVyT/pv+hwChneBBzoAWI6oc7/CT4fDUxY83P3tzmurb8VWIYgGMUR/A==}
 
   '@types/body-parser@1.19.6':
     resolution: {integrity: sha512-HLFeCYgz89uk22N5Qg3dvGvsv46B8GLvKKo1zKG4NybA8U2DiEO3w9lqGg29t/tfLRJpJ6iQxnVw4OnB7MoM9g==}
@@ -2481,7 +2481,7 @@ snapshots:
       '@prisma/client': 6.11.1(prisma@6.12.0(typescript@5.8.3))(typescript@5.8.3)
       '@saas-packages/core': 1.0.1
 
-  '@saas-packages/queue-manager@1.4.1':
+  '@saas-packages/queue-manager@1.5.0':
     dependencies:
       '@saas-packages/core': 1.0.1
       bullmq: 5.56.2

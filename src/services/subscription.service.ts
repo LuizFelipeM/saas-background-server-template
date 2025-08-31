@@ -7,6 +7,7 @@ import { FeatureService } from "./feature/feature.service";
 import { PlanService } from "./plan.service";
 import { WebhookService } from "./webhook/webhook.service";
 import { SubscriptionStatus } from "@/lib/generated/prisma";
+import z from "zod";
 
 type StripeSubscription = Stripe.Subscription & {
   current_period_end: number;
@@ -15,6 +16,10 @@ type StripeSubscription = Stripe.Subscription & {
 @injectable()
 export class SubscriptionService {
   private readonly subscriptionDelegate: Prisma.SubscriptionDelegate;
+  private readonly metadataSchema = z.object({
+    plan: z.string(),
+    organizationId: z.uuidv4(),
+  });
 
   constructor(
     @inject(DITypes.DatabaseManager)
@@ -38,15 +43,13 @@ export class SubscriptionService {
       throw new Error("Missing metadata in checkout session");
     }
 
-    const planId: string = session.metadata.planId;
+    const { plan: planName, organizationId } = this.metadataSchema.parse(
+      session.metadata
+    );
+
     const addonIds: string[] = session.metadata.addonIds
       ? JSON.parse(session.metadata.addonIds)
       : [];
-    const organizationId: string = session.metadata.organizationId;
-
-    if (!planId || !organizationId) {
-      throw new Error("Missing planId or organizationId in session metadata");
-    }
 
     // Get subscription details
     const subscriptionId = session.subscription as string;
@@ -58,7 +61,7 @@ export class SubscriptionService {
       throw new Error("Failed to retrieve subscription");
     }
 
-    const plan = await this.planService.getById(planId);
+    const plan = await this.planService.getByName(planName);
     if (!plan) {
       throw new Error("Plan not found");
     }
@@ -76,10 +79,10 @@ export class SubscriptionService {
     await this.subscriptionDelegate.create({
       data: {
         organizationId,
-        planId,
+        planId: plan.id,
         status: "TRIALING",
         stripeSubscriptionId: subscriptionId,
-        features: JSON.stringify(features),
+        features: features as unknown as Prisma.InputJsonValue,
       },
     });
   }
@@ -107,11 +110,12 @@ export class SubscriptionService {
     // Send user.activated webhook event
     await this.webhookService.sendEvent("user.activated", {
       subscriptionId: dbSubscription.id,
-      stripeSubscriptionId: subscriptionId,
+      stripeSubscriptionId: dbSubscription.stripeSubscriptionId,
       organizationId: dbSubscription.organizationId,
       planId: dbSubscription.planId,
-      status: "ACTIVE",
-      activatedAt: new Date().toISOString(),
+      features: dbSubscription.features,
+      status: dbSubscription.status,
+      activatedAt: dbSubscription.updatedAt.toISOString(),
     });
   }
 

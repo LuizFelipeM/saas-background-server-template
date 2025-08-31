@@ -27,6 +27,12 @@ export class PlanService {
     });
   }
 
+  async getByName(planName: string) {
+    return this.planDelegate.findFirst({
+      where: { name: planName },
+    });
+  }
+
   async getActivePlanById(planId: string) {
     return this.planDelegate.findUnique({
       where: { id: planId, isActive: true },

@@ -11,6 +11,7 @@ import { container } from "tsyringe";
 import { DITypes, ServiceTypes } from "./types";
 import { PrismaClient } from "@/lib/generated/prisma";
 import Redis from "ioredis";
+import Stripe from "stripe";
 
 export class DIContainer {
   private static _container = container;
@@ -29,6 +30,12 @@ export class DIContainer {
         host: process.env.REDIS_HOST,
         port: parseInt(process.env.REDIS_PORT || "6379"),
         maxRetriesPerRequest: null,
+      }),
+    });
+
+    this._container.register(DITypes.Stripe, {
+      useValue: new Stripe(process.env.STRIPE_SECRET_KEY!, {
+        apiVersion: "2025-06-30.basil",
       }),
     });
 

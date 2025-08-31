@@ -1,5 +1,5 @@
 import { type DatabaseManagerType, DITypes } from "@/lib/di.container/types";
-import { Prisma } from "@/lib/generated/prisma";
+import { Prisma, WebhookEndpoint } from "@/lib/generated/prisma";
 import { inject, injectable } from "tsyringe";
 import { z } from "zod";
 
@@ -20,8 +20,8 @@ const WebhookEndpointSchema = z.object({
   timeout: z.number().default(10000),
 });
 
-export type WebhookEvent = z.infer<typeof WebhookEventSchema>;
-export type WebhookEndpoint = z.infer<typeof WebhookEndpointSchema>;
+export type CreateWebhookEvent = z.infer<typeof WebhookEventSchema>;
+export type CreateWebhookEndpoint = z.infer<typeof WebhookEndpointSchema>;
 
 @injectable()
 export class WebhookService {
@@ -37,7 +37,7 @@ export class WebhookService {
   }
 
   async sendEvent(event: string, data: Record<string, any>): Promise<void> {
-    const webhookEvent: WebhookEvent = {
+    const webhookEvent: CreateWebhookEvent = {
       event,
       data,
       timestamp: Date.now(),
@@ -68,9 +68,9 @@ export class WebhookService {
   }
 
   private async sendToEndpoint(
-    endpoint: any,
-    webhookEvent: WebhookEvent
-  ): Promise<void> {
+    endpoint: WebhookEndpoint,
+    webhookEvent: CreateWebhookEvent
+  ): Promise<Response> {
     const maxRetries = endpoint.retryCount || 3;
     const timeout = endpoint.timeout || 10000;
 
@@ -102,15 +102,13 @@ export class WebhookService {
             statusCode: response.status,
             attempt,
           });
-          return;
+          return response;
         } else {
-          throw new Error(
-            `HTTP ${response.status}: ${response.statusText}`
-          );
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
       } catch (error) {
         const isLastAttempt = attempt === maxRetries;
-        
+
         // Log failed webhook
         await this.logWebhookEvent(endpoint.id, webhookEvent, {
           success: false,
@@ -131,17 +129,19 @@ export class WebhookService {
         await new Promise((resolve) => setTimeout(resolve, delay));
       }
     }
+
+    throw new Error(`Failed to send webhook to ${endpoint.url} after ${maxRetries} attempts`);
   }
 
   private generateSignature(
-    webhookEvent: WebhookEvent,
+    webhookEvent: CreateWebhookEvent,
     secret: string
   ): string {
     const payload = JSON.stringify(webhookEvent);
     const encoder = new TextEncoder();
     const key = encoder.encode(secret);
     const data = encoder.encode(payload);
-    
+
     // Simple HMAC-SHA256 implementation
     // In production, you might want to use a proper crypto library
     return btoa(payload + secret); // Simplified for demo
@@ -149,7 +149,7 @@ export class WebhookService {
 
   private async logWebhookEvent(
     endpointId: string,
-    webhookEvent: WebhookEvent,
+    webhookEvent: CreateWebhookEvent,
     result: {
       success: boolean;
       statusCode?: number;
@@ -176,8 +176,10 @@ export class WebhookService {
   }
 
   // CRUD operations for webhook endpoints
-  async createEndpoint(endpoint: Omit<WebhookEndpoint, "id">): Promise<WebhookEndpoint> {
-    const result = await this.webhookEndpointDelegate.create({
+  async createEndpoint(
+    endpoint: Omit<CreateWebhookEndpoint, "id">
+  ): Promise<WebhookEndpoint> {
+    return await this.webhookEndpointDelegate.create({
       data: {
         url: endpoint.url,
         events: endpoint.events,
@@ -187,39 +189,19 @@ export class WebhookService {
         timeout: endpoint.timeout,
       },
     });
-    
-    return {
-      id: result.id,
-      url: result.url,
-      events: result.events,
-      isActive: result.isActive,
-      secret: result.secret || undefined,
-      retryCount: result.retryCount,
-      timeout: result.timeout,
-    };
   }
 
   async updateEndpoint(
     id: string,
-    updates: Partial<WebhookEndpoint>
+    updates: Partial<CreateWebhookEndpoint>
   ): Promise<WebhookEndpoint> {
-    const result = await this.webhookEndpointDelegate.update({
+    return await this.webhookEndpointDelegate.update({
       where: { id },
       data: {
         ...updates,
         secret: updates.secret || null,
       },
     });
-    
-    return {
-      id: result.id,
-      url: result.url,
-      events: result.events,
-      isActive: result.isActive,
-      secret: result.secret || undefined,
-      retryCount: result.retryCount,
-      timeout: result.timeout,
-    };
   }
 
   async deleteEndpoint(id: string): Promise<void> {
@@ -229,33 +211,65 @@ export class WebhookService {
   }
 
   async getEndpoints(): Promise<WebhookEndpoint[]> {
-    const results = await this.webhookEndpointDelegate.findMany();
-    return results.map(result => ({
-      id: result.id,
-      url: result.url,
-      events: result.events,
-      isActive: result.isActive,
-      secret: result.secret || undefined,
-      retryCount: result.retryCount,
-      timeout: result.timeout,
-    }));
+    return this.webhookEndpointDelegate.findMany();
   }
 
   async getEndpoint(id: string): Promise<WebhookEndpoint | null> {
-    const result = await this.webhookEndpointDelegate.findUnique({
+    return this.webhookEndpointDelegate.findUnique({
       where: { id },
     });
-    
-    if (!result) return null;
-    
-    return {
-      id: result.id,
-      url: result.url,
-      events: result.events,
-      isActive: result.isActive,
-      secret: result.secret || undefined,
-      retryCount: result.retryCount,
-      timeout: result.timeout,
-    };
   }
-} 
+
+  /**
+   * Retry a failed webhook event by its ID
+   * @param webhookEventId - The ID of the webhook event to retry
+   * @returns Promise<{ success: boolean; message: string }>
+   */
+  async retryWebhookEvent(
+    webhookEventId: string
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      // Find the webhook event
+      const webhookEvent = await this.webhookEventDelegate.findUnique({
+        where: { id: webhookEventId },
+        include: {
+          endpoint: true,
+        },
+      });
+
+      if (!webhookEvent) {
+        return {
+          success: false,
+          message: `Webhook event with ID ${webhookEventId} not found`,
+        };
+      }
+
+      // Check if the endpoint is still active
+      if (!webhookEvent.endpoint.isActive) {
+        return {
+          success: false,
+          message: `Cannot retry webhook event: endpoint ${webhookEvent.endpoint.id} is inactive`,
+        };
+      }
+
+      // Retry sending the webhook
+      const response = await this.sendToEndpoint(
+        webhookEvent.endpoint,
+        webhookEvent.payload as CreateWebhookEvent
+      );
+
+      return {
+        success: true,
+        message: `Webhook event ${webhookEventId} successfully returned ${response.status}`,
+      };
+    } catch (error) {
+      console.error(`Failed to retry webhook event ${webhookEventId}:`, error);
+      return {
+        success: false,
+        message: `Failed to retry webhook event: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      };
+    }
+  }
+}

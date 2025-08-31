@@ -59,6 +59,42 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
+// Webhook retry endpoint
+app.post("/webhooks/retry", async (req, res) => {
+  try {
+    const { webhookEventId } = req.body;
+
+    if (!webhookEventId) {
+      return res.status(400).json({
+        success: false,
+        message: "webhookEventId is required",
+      });
+    }
+
+    if (typeof webhookEventId !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "webhookEventId must be a string",
+      });
+    }
+
+    const webhookService = DIContainer.getInstance(DITypes.WebhookService);
+    const result = await webhookService.retryWebhookEvent(webhookEventId);
+
+    if (result.success) {
+      res.json(result);
+    } else {
+      res.status(400).json(result);
+    }
+  } catch (error) {
+    console.error("Error in webhook retry endpoint:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+});
+
 // Start the server
 app.listen(port, () => {
   registerWorkers();

@@ -17,8 +17,10 @@ networks:
 services:  
   st-background-server:
     depends_on:
-      - st-bg-redis
-      - st-bg-postgres
+      st-bg-redis:
+        condition: service_healthy
+      st-bg-postgres:
+        condition: service_healthy
     container_name: st-background-server
     restart: unless-stopped
     build:
@@ -44,6 +46,12 @@ services:
     container_name: st-bg-redis
     image: redis:alpine
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
     ports:
       - 6379:6379
     networks:
@@ -59,6 +67,11 @@ services:
       POSTGRES_DB: saas-background-server
       POSTGRES_USER: saas-bg-user
       POSTGRES_PASSWORD: saas-bg-password
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
     ports:
       - 5432:5432
     volumes:

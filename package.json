@@ -11,6 +11,8 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
+    "prisma:seed": "prisma db seed",
+    "prisma:reset": "prisma migrate reset",
     "commit": "cz",
     "commit:all": "git add . && cz",
     "prepare": "husky"
@@ -20,7 +22,7 @@
     "@bull-board/express": "^6.11.0",
     "@prisma/client": "^6.11.1",
     "@saas-packages/database-manager": "^1.2.0",
-    "@saas-packages/queue-manager": "^1.4.1",
+    "@saas-packages/queue-manager": "^1.5.0",
     "bullmq": "^5.56.2",
     "express": "^5.1.0",
     "express-basic-auth": "^1.2.1",
@@ -49,5 +51,8 @@
     "commitizen": {
       "path": "cz-conventional-changelog"
     }
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   }
 }
