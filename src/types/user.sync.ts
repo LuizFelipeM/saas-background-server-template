@@ -1,11 +1,15 @@
+export enum UserSyncType {
+  SYNC = "sync",
+  DELETE = "delete",
+}
+
 export interface UserSyncJobData {
-  type: "sync" | "delete";
+  type: UserSyncType;
   user: UserSync;
 }
 
 export interface UserSync {
   id: string;
-  clerkId: string;
   createdAt: Date;
   updatedAt?: Date;
   stripeId?: string | null;

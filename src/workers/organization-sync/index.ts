@@ -1,7 +1,7 @@
 import { DIContainer } from "@/lib/di.container";
 import { DITypes } from "@/lib/di.container/types";
 import { UserRole } from "@/lib/generated/prisma";
-import { OrganizationSyncJobData } from "@/types/organization.sync";
+import { OrganizationSyncJobData, OrganizationSyncType } from "@/types/organization.sync";
 import { JobProcessor, JobResult } from "@saas-packages/queue-manager";
 import { Job } from "bullmq";
 import z from "zod";
@@ -9,11 +9,10 @@ import z from "zod";
 export default class OrganizationSyncJob
   implements JobProcessor<OrganizationSyncJobData>
 {
-  private readonly jobDataSchema = z.object({
-    type: z.enum(["sync", "delete"]),
+  private readonly jobDataSchema: z.ZodType<OrganizationSyncJobData> = z.object({
+    type: z.enum(OrganizationSyncType),
     organization: z.object({
       id: z.string(),
-      clerkId: z.string(),
       memberships: z.array(
         z.object({
           userId: z.string(),
@@ -39,11 +38,11 @@ export default class OrganizationSyncJob
       switch (type) {
         case "sync": {
           job.log(
-            `Syncing organization with id: ${organization.id} and clerkId: ${organization.clerkId}`
+            `Syncing organization with id: ${organization.id}`
           );
           await organizationService.sync(organization);
           job.log(
-            `Successfully synced organization with id: ${organization.id} and clerkId: ${organization.clerkId}`
+            `Successfully synced organization with id: ${organization.id}`
           );
 
           return {
@@ -67,7 +66,7 @@ export default class OrganizationSyncJob
 
         default: {
           throw new Error(
-            `Unknown organization sync type ${type} for organization with id: ${organization.id} and clerkId: ${organization.clerkId}`
+            `Unknown organization sync type ${type} for organization with id: ${organization.id}`
           );
         }
       }

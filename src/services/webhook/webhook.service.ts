@@ -130,7 +130,9 @@ export class WebhookService {
       }
     }
 
-    throw new Error(`Failed to send webhook to ${endpoint.url} after ${maxRetries} attempts`);
+    throw new Error(
+      `Failed to send webhook to ${endpoint.url} after ${maxRetries} attempts`
+    );
   }
 
   private generateSignature(
@@ -162,7 +164,7 @@ export class WebhookService {
         data: {
           endpointId,
           event: webhookEvent.event,
-          payload: JSON.stringify(webhookEvent),
+          payload: webhookEvent as Prisma.InputJsonValue,
           success: result.success,
           statusCode: result.statusCode,
           error: result.error,

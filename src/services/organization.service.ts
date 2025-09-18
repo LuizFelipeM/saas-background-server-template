@@ -20,18 +20,11 @@ export class OrganizationService {
     });
   }
 
-  async getByClerkId(clerkId: string): Promise<Organization | null> {
-    return await this.organizationDelegate.findUnique({
-      where: { clerkId },
-    });
-  }
-
   async sync(organization: OrganizationSync): Promise<Organization> {
     return await this.organizationDelegate.upsert({
-      where: { clerkId: organization.clerkId },
+      where: { id: organization.id },
       update: {
         id: organization.id,
-        clerkId: organization.clerkId,
         memberships: {
           deleteMany: {
             OR: organization.memberships.map((membership) => ({
@@ -51,7 +44,6 @@ export class OrganizationService {
       },
       create: {
         id: organization.id,
-        clerkId: organization.clerkId,
         memberships: {
           createMany: {
             data: organization.memberships.map((membership) => ({
@@ -72,9 +64,9 @@ export class OrganizationService {
     });
   }
 
-  async exists(clerkId: string): Promise<boolean> {
+  async exists(id: string): Promise<boolean> {
     const organization = await this.organizationDelegate.findUnique({
-      where: { clerkId },
+      where: { id },
       select: { id: true },
     });
     return !!organization;

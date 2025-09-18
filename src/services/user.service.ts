@@ -16,11 +16,10 @@ export class UserService {
 
   async sync(user: UserSync): Promise<User> {
     return await this.userDelegate.upsert({
-      where: { clerkId: user.clerkId },
+      where: { id: user.id },
       update: {
         id: user.id,
         email: user.email,
-        clerkId: user.clerkId,
         stripeId: user.stripeId,
         createdAt: user.createdAt,
         updatedAt: new Date(),
@@ -28,7 +27,6 @@ export class UserService {
       create: {
         id: user.id,
         email: user.email,
-        clerkId: user.clerkId,
         stripeId: user.stripeId,
         createdAt: user.createdAt,
         updatedAt: new Date(),
@@ -36,15 +34,15 @@ export class UserService {
     });
   }
 
-  async delete(clerkId: string): Promise<void> {
+  async delete(id: string): Promise<void> {
     await this.userDelegate.delete({
-      where: { clerkId },
+      where: { id },
     });
   }
 
-  async getByClerkId(clerkId: string): Promise<User | null> {
+  async getById(id: string): Promise<User | null> {
     return await this.userDelegate.findUnique({
-      where: { clerkId },
+      where: { id },
     });
   }
 
@@ -60,9 +58,9 @@ export class UserService {
     });
   }
 
-  async exists(clerkId: string): Promise<boolean> {
+  async exists(id: string): Promise<boolean> {
     const user = await this.userDelegate.findUnique({
-      where: { clerkId },
+      where: { id },
       select: { id: true },
     });
     return !!user;

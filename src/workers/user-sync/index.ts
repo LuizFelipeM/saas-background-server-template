@@ -1,17 +1,16 @@
 import { DIContainer } from "@/lib/di.container";
 import { DITypes } from "@/lib/di.container/types";
-import { UserSyncJobData } from "@/types/user.sync";
+import { UserSyncJobData, UserSyncType } from "@/types/user.sync";
 import { JobProcessor, JobResult } from "@saas-packages/queue-manager";
 import { Job } from "bullmq";
 import z from "zod";
 
 export default class UserSyncJob implements JobProcessor<UserSyncJobData> {
-  private readonly jobDataSchema = z.object({
-    type: z.enum(["sync", "delete"]),
+  private readonly jobDataSchema: z.ZodType<UserSyncJobData> = z.object({
+    type: z.enum(UserSyncType),
     user: z.object({
       id: z.string(),
       email: z.string(),
-      clerkId: z.string(),
       stripeId: z.string().optional(),
       createdAt: z.string().transform((str) => new Date(str)),
       updatedAt: z
@@ -34,13 +33,9 @@ export default class UserSyncJob implements JobProcessor<UserSyncJobData> {
             throw new Error("user is required for sync action");
           }
 
-          job.log(
-            `Syncing user with id: ${user.id} and clerkId: ${user.clerkId}`
-          );
+          job.log(`Syncing user with id: ${user.id}`);
           await userService.sync(user);
-          job.log(
-            `Successfully synced user with id: ${user.id} and clerkId: ${user.clerkId}`
-          );
+          job.log(`Successfully synced user with id: ${user.id}`);
 
           return {
             success: true,
@@ -48,13 +43,9 @@ export default class UserSyncJob implements JobProcessor<UserSyncJobData> {
         }
 
         case "delete": {
-          job.log(
-            `Deleting user with id: ${user.id} and clerkId: ${user.clerkId}`
-          );
-          await userService.delete(user.clerkId);
-          job.log(
-            `Successfully deleted user with id: ${user.id} and clerkId: ${user.clerkId}`
-          );
+          job.log(`Deleting user with id: ${user.id}`);
+          await userService.delete(user.id);
+          job.log(`Successfully deleted user with id: ${user.id}`);
 
           return {
             success: true,
@@ -63,7 +54,7 @@ export default class UserSyncJob implements JobProcessor<UserSyncJobData> {
 
         default: {
           throw new Error(
-            `Unknown user sync type ${type} for user with id: ${user.id} and clerkId: ${user.clerkId}`
+            `Unknown user sync type ${type} for user with id: ${user.id}`
           );
         }
       }
